@@ -37,10 +37,37 @@
 <ul>
     <li>
         The one for mysql books is under
-        <a target="_new" href="http://localhost/books">http://localhost/books</a>
+        <a target="_blank" href="http://localhost/books">http://localhost/books</a>
     </li>
     <li>
         The one for redis books is under
-        <a target="_new" href="http://localhost/cached-books">http://localhost/cached-books</a>
+        <a target="_blank" href="http://localhost/cached-books">http://localhost/cached-books</a>
+    </li>
+</ul>
+<h2>Classes</h2>
+<ul>
+    <li>
+       Factories are under
+       <pre>app/database/factories</pre>
+       also check the seeder file in:
+       <pre>app/database/seeds/BooksTableSeeder.php</pre>
+    </li>
+    <li>
+       MySQL models
+       <pre>app/app/Book.php</pre>
+       <pre>app/app/Review.php</pre>
+    </li>
+    <li>
+       Redis models
+       <pre>app/app/Redis/Book.php</pre>
+       <pre>app/app/Redis/Review.php</pre>
+    </li>
+    <li>
+       Controllers are under
+       <pre>app/app/Http/Controllers</pre>
+    </li>
+    <li>
+       Resources are under (parsing data into json)
+       <pre>app/app/Http/Resources</pre>
     </li>
 </ul>
