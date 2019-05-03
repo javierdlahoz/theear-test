@@ -18,9 +18,10 @@ services:
       - MYSQL_ROOT_PASSWORD=root
   app:
     build: .
+    command: 'php -S 0.0.0.0:3030 -t public'
     container_name: theear_api
     ports:
-      - "80:8080"
+      - "80:3030"
     volumes:
       - type: bind
         source: ./app

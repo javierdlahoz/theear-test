@@ -8,6 +8,8 @@ abstract class RedisModel
     /** @var integer */
     protected $id;
 
+    private static $app;
+
     function __construct(array $args)
     {
         foreach ($args as $key => $value) {
@@ -43,7 +45,7 @@ abstract class RedisModel
     private function getIdentifier(): string
     {
         $identifier = strtolower(get_class($this));
-        $identifier .= '-' . (string) $this->getId();
+        $identifier .= '-' . (string)$this->getId();
         return $identifier;
     }
 
@@ -71,6 +73,18 @@ abstract class RedisModel
     }
 
     /**
+     * @return mixed
+     */
+    public static function getApp()
+    {
+        if (isset(self::$app)) {
+            return self::$app;
+        } else {
+            return require __DIR__ . '/../../bootstrap/app.php';
+        }
+    }
+
+    /**
      * @param int $id
      * @return mixed
      */
@@ -78,13 +92,44 @@ abstract class RedisModel
     {
         $calledClass = get_called_class();
         $key = strtolower($calledClass) . '-' . $id;
-        $app = require __DIR__ . '/../../bootstrap/app.php';
 
-        $cachedObject = $app['redis']->get($key);
-        if (!is_null($cachedObject)) {
-            $object = new $calledClass(json_decode($cachedObject, true));
-            return $object;
+        self::findByKey($key);
+    }
+
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    public static function findByKey(string $key)
+    {
+        $cachedObject = self::getApp()['redis']->get($key);
+        if ($cachedObject) {
+            $calledClass = get_called_class();
+            $cachedArray = json_decode($cachedObject, true);
+
+            return new $calledClass($cachedArray);
+        } else {
+            return null;
         }
-        return null;
+    }
+
+    /**
+     * @return array
+     */
+    public static function all(): array
+    {
+        $calledClass = get_called_class();
+        $keys = self::getApp()['redis']->keys(
+            str_replace("\\", "\\\\", strtolower($calledClass) . '*')
+        );
+        $objects = [];
+        foreach ($keys as $key) {
+            $object = self::findByKey($key);
+            if ($object) {
+                $objects[] = $object;
+            }
+        }
+
+        return $objects;
     }
 }

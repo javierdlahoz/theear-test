@@ -14,3 +14,11 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->get('books', [
+    'as' => 'books', 'uses' => 'BooksController@index'
+]);
+
+$router->get('cached-books', [
+    'as' => 'cached-books', 'uses' => 'CachedBooksController@index'
+]);

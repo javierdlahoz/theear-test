@@ -88,12 +88,7 @@ class Book extends RedisModel
      */
     public function getReviews(): array
     {
-        $reviews = [];
-        foreach ($this->reviews as $review)
-        {
-            $review[] = new Review($review);
-        }
-        return $reviews;
+        return $this->reviews;
     }
 
     /**
