@@ -9,9 +9,11 @@ services:
         - "6379:6379"
   mysql:
     image: mysql:5.7
+    command: --init-file /data/application/init.sql
     container_name: theear_mysql
     volumes:
       - mysqldata:/var/lib/mysql
+      - ./init.sql:/data/application/init.sql
     ports:
       - "3306:3306"
     environment:
