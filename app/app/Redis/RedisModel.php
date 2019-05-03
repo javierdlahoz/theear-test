@@ -10,68 +10,6 @@ abstract class RedisModel
 
     private static $app;
 
-    function __construct(array $args)
-    {
-        foreach ($args as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->{$key} = $value;
-            }
-        }
-
-        if (!isset($this->id)) {
-            $this->id = uniqid();
-        }
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return string
-     */
-    private function getIdentifier(): string
-    {
-        $identifier = strtolower(get_class($this));
-        $identifier .= '-' . (string)$this->getId();
-        return $identifier;
-    }
-
-    public function save()
-    {
-        $app = require __DIR__ . '/../../bootstrap/app.php';
-        $app['redis']
-            ->set($this->getIdentifier(), $this->toJson());
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return get_object_vars($this);
-    }
-
-    /**
-     * @return string
-     */
-    public function toJson(): string
-    {
-        return json_encode($this->toArray());
-    }
-
     /**
      * @return mixed
      */
@@ -114,6 +52,21 @@ abstract class RedisModel
     }
 
     /**
+     * @param array $collection
+     * @param string $attribute
+     * @return array
+     */
+    public static function sort(array $collection, string $attribute): array
+    {
+        usort($collection, function ($item1, $item2) use (&$attribute) {
+            if ($item1->{$attribute} == $item2->{$attribute}) return 0;
+            return $item1->{$attribute} < $item2->{$attribute} ? -1 : 1;
+        });
+
+        return $collection;
+    }
+
+    /**
      * @return array
      */
     public static function all(): array
@@ -123,6 +76,7 @@ abstract class RedisModel
             str_replace("\\", "\\\\", strtolower($calledClass) . '*')
         );
         $objects = [];
+
         foreach ($keys as $key) {
             $object = self::findByKey($key);
             if ($object) {
@@ -130,6 +84,67 @@ abstract class RedisModel
             }
         }
 
-        return $objects;
+        return self::sort($objects, 'id');
+    }
+
+    function __construct(array $args)
+    {
+        foreach ($args as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
+
+        if (!isset($this->id)) {
+            $this->id = uniqid();
+        }
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    private function getIdentifier(): string
+    {
+        $identifier = strtolower(get_class($this));
+        $identifier .= '-' . (string)$this->getId();
+        return $identifier;
+    }
+
+    public function save()
+    {
+        $app = require __DIR__ . '/../../bootstrap/app.php';
+        $app['redis']->set($this->getIdentifier(), $this->toJson());
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return get_object_vars($this);
+    }
+
+    /**
+     * @return string
+     */
+    public function toJson(): string
+    {
+        return json_encode($this->toArray());
     }
 }
