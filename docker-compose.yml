@@ -1,0 +1,36 @@
+version: '3.2'
+volumes:
+  mysqldata:
+services:
+  redis:
+    image: redis
+    container_name: theear_redis
+    ports:
+        - "6379:6379"
+  mysql:
+    image: mysql:5.7
+    container_name: theear_mysql
+    volumes:
+      - mysqldata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+  app:
+    build: .
+    container_name: theear_api
+    ports:
+      - "80:8080"
+    volumes:
+      - type: bind
+        source: ./app
+        target: /var/www/html
+    stdin_open: true
+    tty: true
+    environment:
+      - ENV_PHP=local
+      - COMPOSE_HTTP_TIMEOUT=9000
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+      - mysql
