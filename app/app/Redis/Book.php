@@ -16,6 +16,9 @@ class Book extends RedisModel
     /** @var string */
     protected $isbn;
 
+    /** @var array */
+    protected $reviews;
+
     /**
      * @return string
      */
@@ -78,6 +81,27 @@ class Book extends RedisModel
     public function setIsbn(string $isbn): void
     {
         $this->isbn = $isbn;
+    }
+
+    /**
+     * @return array
+     */
+    public function getReviews(): array
+    {
+        $reviews = [];
+        foreach ($this->reviews as $review)
+        {
+            $review[] = new Review($review);
+        }
+        return $reviews;
+    }
+
+    /**
+     * @param array $reviews
+     */
+    public function setReviews(array $reviews): void
+    {
+        $this->reviews = $reviews;
     }
 
 }

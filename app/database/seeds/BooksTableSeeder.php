@@ -8,6 +8,10 @@ class BooksTableSeeder extends DatabaseSeeder
             for ($i = 0; $i < mt_rand(1, 5); $i++) {
                 $book->reviews()->save(factory(App\Review::class)->make());
             }
+
+            $cachedBook = new \App\Redis\Book($book->toArray());
+            $cachedBook->setReviews($book->reviews->toArray());
+            $cachedBook->save();
         });
     }
 }
